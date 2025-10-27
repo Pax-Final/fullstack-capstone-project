@@ -1,0 +1,90 @@
+
+.image-placeholder-large {
+    /* 🟢 Task 1 styling */
+    width: 100%;
+    height: 400px;
+    position: relative;
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-image-large {
+    /* 🟢 Task 2 styling */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.no-image-available-large {
+    /* 🟢 Task 3 styling */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 400px;
+    background-color: #e9ecef;
+    color: #777;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: 1px dashed #ccc;
+}
+
+.card-header {
+    /* 🟢 Task 4 styling */
+    background-color: #007bff;
+    color: white;
+    padding: 16px;
+    border-radius: 12px 12px 0 0;
+    font-weight: bold;
+    font-size: 1.4rem;
+    text-align: center;
+}
+
+.details-title {
+    /* 🟢 Task 5 styling */
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 20px 0 10px;
+    text-align: center;
+    text-transform: capitalize;
+    border-bottom: 2px solid #007bff;
+    display: inline-block;
+    padding-bottom: 6px;
+}
+
+.comments-section {
+    /* 🟢 Task 6 styling */
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.comments-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: #007bff;
+}
+
+.comment-item {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.comment-item p {
+    margin: 4px 0;
+}
+
+.comment-item strong {
+    color: #333;
+}
