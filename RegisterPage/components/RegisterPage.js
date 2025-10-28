@@ -1,95 +1,98 @@
+import { urlConfig } from '../../config';
+
+import { useAppContext } from '../../context/AuthContext';
+
+import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
-import './RegisterPage.css';
 
-function RegisterPage() {
-    // Déclaration des états pour les champs du formulaire
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+const RegisterPage = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  const [showerr, setShowerr] = useState('');
 
-    // Fonction appelée lors du clic sur le bouton Register
-    const handleRegister = async () => {
-        console.log("Register invoked");
-        console.log({ firstName, lastName, email, password });
-        // Ici, vous pourriez ajouter la logique pour envoyer les données à votre API
+  const navigate = useNavigate();
+  const { setIsLoggedIn } = useAppContext();
+
+  const handleRegister = async () => {
+    try {
+      const response = await fetch(`${urlConfig.backendUrl}/api/auth/register`, {
+        
+        method: 'POST',
+        
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          password: password,
+        }),
+      });
+
+      
+      const json = await response.json();
+
+      if (json.authtoken) {
+        
+        sessionStorage.setItem('auth-token', json.authtoken);
+        sessionStorage.setItem('name', firstName);
+        sessionStorage.setItem('email', json.email);
+
+        setIsLoggedIn(true);
+
+        navigate('/app');
+      }
+
+      if (json.error) {
+        setShowerr(json.error);
+      }
+    } catch (e) {
+      console.log("Error fetching details: " + e.message);
+      setShowerr('Erreur lors de la connexion au serveur.');
     }
+  };
 
-    return (
-        <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6 col-lg-4">
-                    <div className="register-card p-4 border rounded">
-                        <h2 className="text-center mb-4 font-weight-bold">Register</h2>
-                        
-                        {/* Champ First Name */}
-                        <div className="mb-3">
-                            <label htmlFor="firstName" className="form-label">First Name</label>
-                            <input
-                                id="firstName"
-                                type="text"
-                                className="form-control"
-                                placeholder="Enter your first name"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                            />
-                        </div>
+  return (
+    <div className="register-container">
+      <h2>Inscription</h2>
+      
+      <input
+        type="text"
+        placeholder="Prénom"
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Nom"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+      />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Mot de passe"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
 
-                        {/* Champ Last Name */}
-                        <div className="mb-3">
-                            <label htmlFor="lastName" className="form-label">Last Name</label>
-                            <input
-                                id="lastName"
-                                type="text"
-                                className="form-control"
-                                placeholder="Enter your last name"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                            />
-                        </div>
+      <button onClick={handleRegister}>S’inscrire</button>
 
-                        {/* Champ Email */}
-                        <div className="mb-3">
-                            <label htmlFor="email" className="form-label">Email</label>
-                            <input
-                                id="email"
-                                type="email"
-                                className="form-control"
-                                placeholder="Enter your email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-
-                        {/* Champ Password */}
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">Password</label>
-                            <input
-                                id="password"
-                                type="password"
-                                className="form-control"
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                        </div>
-
-                        {/* Bouton Register */}
-                        <button
-                            className="btn btn-primary w-100 mb-3"
-                            onClick={handleRegister}
-                        >
-                            Register
-                        </button>
-
-                        <p className="mt-4 text-center">
-                            Already a member? <a href="/app/login" className="text-primary">Login</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
+      {/* ✅ Task 6: Display error message to end user */}
+      {showerr && <div className="text-danger">{showerr}</div>}
+    </div>
+  );
+};
 
 export default RegisterPage;
+
