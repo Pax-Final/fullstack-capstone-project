@@ -7,27 +7,27 @@ const router = express.Router();
 const dotenv = require('dotenv');
 const pino = require('pino');
 
-
+// Step 1 - Task 3: Create a Pino logger instance
 const logger = pino();
 
-
+// Load environment variables
 dotenv.config();
 
 // Step 1 - Task 4: Create JWT secret
 const JWT_SECRET = process.env.JWT_SECRET;
 
-
+// =============================
 // REGISTER ENDPOINT
-
+// =============================
 router.post('/register', async (req, res) => {
     try {
-        
+        // 🧩 Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase`
         const db = await connectToDatabase();
 
-        
+        // 🧩 Task 2: Access MongoDB collection
         const collection = db.collection("users");
 
-        
+        // 🧩 Task 3: Check for existing email
         const existingEmail = await collection.findOne({ email: req.body.email });
         if (existingEmail) {
             return res.status(400).json({ error: "Email already registered" });
@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
         const hash = await bcryptjs.hash(req.body.password, salt);
         const email = req.body.email;
 
-        
+        // 🧩 Task 4: Save user details in database
         const newUser = await collection.insertOne({
             email: req.body.email,
             firstName: req.body.firstName,
@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
             createdAt: new Date(),
         });
 
-        
+        // 🧩 Task 5: Create JWT authentication with user._id as payload
         const payload = {
             user: {
                 id: newUser.insertedId,
@@ -55,7 +55,7 @@ router.post('/register', async (req, res) => {
         };
         const authtoken = jwt.sign(payload, JWT_SECRET);
 
-       
+        // Log and respond
         logger.info('User registered successfully');
         res.json({ authtoken, email });
 
