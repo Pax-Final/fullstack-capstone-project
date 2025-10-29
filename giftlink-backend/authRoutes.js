@@ -7,13 +7,13 @@ const router = express.Router();
 const dotenv = require('dotenv');
 const pino = require('pino');
 
-// Step 1 - Task 3: Create a Pino logger instance
+
 const logger = pino();
 
-// Load environment variables
+
 dotenv.config();
 
-// Step 1 - Task 4: Create JWT secret
+
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // =============================
@@ -21,24 +21,25 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // =============================
 router.post('/register', async (req, res) => {
     try {
-        // 🧩 Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase`
+        
         const db = await connectToDatabase();
 
-        // 🧩 Task 2: Access MongoDB collection
+        
         const collection = db.collection("users");
 
-        // 🧩 Task 3: Check for existing email
+        
         const existingEmail = await collection.findOne({ email: req.body.email });
         if (existingEmail) {
+            logger.warn(`Attempted registration with existing email: ${req.body.email}`);
             return res.status(400).json({ error: "Email already registered" });
         }
 
-        // Hash password
+        
         const salt = await bcryptjs.genSalt(10);
         const hash = await bcryptjs.hash(req.body.password, salt);
         const email = req.body.email;
 
-        // 🧩 Task 4: Save user details in database
+        
         const newUser = await collection.insertOne({
             email: req.body.email,
             firstName: req.body.firstName,
@@ -47,7 +48,7 @@ router.post('/register', async (req, res) => {
             createdAt: new Date(),
         });
 
-        // 🧩 Task 5: Create JWT authentication with user._id as payload
+        
         const payload = {
             user: {
                 id: newUser.insertedId,
@@ -55,12 +56,59 @@ router.post('/register', async (req, res) => {
         };
         const authtoken = jwt.sign(payload, JWT_SECRET);
 
-        // Log and respond
-        logger.info('User registered successfully');
+        logger.info(`User registered successfully: ${email}`);
         res.json({ authtoken, email });
 
     } catch (e) {
-        console.error(e);
+        logger.error(`Registration failed: ${e.message}`);
+        return res.status(500).send('Internal server error');
+    }
+});
+
+// =============================
+// LOGIN ENDPOINT
+// =============================
+router.post('/login', async (req, res) => {
+    try {
+        
+        const db = await connectToDatabase();
+
+        
+        const collection = db.collection("users");
+
+        
+        const theUser = await collection.findOne({ email: req.body.email });
+
+        
+        if (!theUser) {
+            logger.error(`Login failed: user not found for email ${req.body.email}`);
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        
+        const result = await bcryptjs.compare(req.body.password, theUser.password);
+        if (!result) {
+            logger.error(`Login failed: wrong password for email ${req.body.email}`);
+            return res.status(401).json({ error: 'Wrong password' });
+        }
+
+        
+        const userName = theUser.firstName;
+        const userEmail = theUser.email;
+
+        
+        const payload = {
+            user: {
+                id: theUser._id.toString(),
+            },
+        };
+        const authtoken = jwt.sign(payload, JWT_SECRET);
+
+        logger.info(`User logged in successfully: ${userEmail}`);
+        res.json({ authtoken, userName, userEmail });
+
+    } catch (e) {
+        logger.error(`Login failed: ${e.message}`);
         return res.status(500).send('Internal server error');
     }
 });
