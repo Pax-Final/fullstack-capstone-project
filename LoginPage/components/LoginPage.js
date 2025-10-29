@@ -1,17 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginPage.css';
+import { urlConfig } from '../../config';                  // Task 1
+import { useAppContext } from '../../context/AuthContext'; // Task 2
+import { useNavigate } from 'react-router-dom';            // Task 3
 
 function LoginPage() {
-    // Déclaration des états pour les champs du formulaire
+   
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [incorrect, setIncorrect] = useState('');
 
-    // Fonction appelée lors du clic sur le bouton Login
+    
+    const navigate = useNavigate();
+    const bearerToken = sessionStorage.getItem('auth-token');
+    const { setIsLoggedIn } = useAppContext();
+
+    
+    useEffect(() => {
+        if (bearerToken) {
+            navigate('/app');
+        }
+    }, [bearerToken, navigate]);
+
+    
     const handleLogin = async () => {
-        console.log("Login invoked");
-        console.log({ email, password });
-        // Ici, vous pouvez ajouter la logique pour envoyer les données à votre API
-    }
+        try {
+            const response = await fetch(`${urlConfig.backendUrl}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': bearerToken ? `Bearer ${bearerToken}` : '',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
+
+            const json = await response.json();
+
+            if (json.authtoken) {
+                
+                sessionStorage.setItem('auth-token', json.authtoken);
+                sessionStorage.setItem('name', json.userName);
+                sessionStorage.setItem('email', json.userEmail);
+
+                
+                setIsLoggedIn(true);
+
+                
+                navigate('/app');
+            } else if (json.error) {
+                setIncorrect(json.error);
+            }
+        } catch (e) {
+            console.log("Erreur lors de la connexion : " + e.message);
+            setIncorrect("Erreur de connexion. Veuillez réessayer.");
+        }
+    };
 
     return (
         <div className="container mt-5">
@@ -45,6 +91,9 @@ function LoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
+
+                        {/* Affichage du message d'erreur */}
+                        {incorrect && <div className="text-danger mb-3">{incorrect}</div>}
 
                         {/* Bouton Login */}
                         <button
