@@ -1,46 +1,39 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const pinoHttp = require('pino-http');
-const logger = require('./logger');
-const connectToDatabase = require('./models/db');
-const { loadData } = require("./util/import-mongo/index");
-
+require('dotenv').config();
 
 const app = express();
-const port = 3060;
 
-
-app.use(express.json());
+// Middleware
 app.use(cors());
-app.use(pinoHttp({ logger }));
+app.use(express.json());
 
-connectToDatabase()
-  .then(() => logger.info('✅ Connected to MongoDB'))
-  .catch((err) => logger.error('❌ Failed to connect to DB', err));
+// Importer la connexion à la base de données
+const connectToDatabase = require('./models/db');
 
-
-const giftRoutes = require('./routes/giftRoutes');
-const authRoutes = require('./routes/authRoutes');
-const searchRoutes = require('./routes/searchRoutes');
-
-
-app.use('/api/gifts', giftRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/search', searchRoutes);
-
-
+// Route de test
 app.get('/', (req, res) => {
-  res.send('🎁 GiftLink backend is running!');
+  res.json({ message: 'GiftLink Backend is running!' });
 });
 
+// Routes d'authentification
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
-app.use((err, req, res, next) => {
-  logger.error(err);
-  res.status(500).send('Internal Server Error');
-});
+// Démarrer le serveur après connexion à la DB
+async function startServer() {
+  try {
+    await connectToDatabase();
+    console.log('✅ Connected to MongoDB');
+    
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
 
-
-app.listen(port, () => {
-  logger.info(`🚀 Server running on http://localhost:${port}`);
-});
+startServer();
