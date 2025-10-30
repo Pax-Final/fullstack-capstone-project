@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giftwebsite
+  labels:
+    app: giftwebsite
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: giftwebsite
+  template:
+    metadata:
+      labels:
+        app: giftwebsite
+    spec:
+      containers:
+      - name: giftwebsite-container
+        image: us.icr.io/sn-labs-maximemarcel/giftwebsite
+        ports:
+        - containerPort: 9000
+        env:
+        - name: PORT
+          value: "9000"
+      imagePullSecrets:
+      - name: icr
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: giftwebsite-service
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 9000
+    nodePort: 30008
+  selector:
+    app: giftwebsite

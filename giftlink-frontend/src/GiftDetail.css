@@ -1,0 +1,76 @@
+.gift-detail {
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.gift-detail h2 {
+  color: #2c5530;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.gift-detail-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.gift-image-large {
+  height: 300px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-placeholder-large {
+  font-size: 72px;
+}
+
+.gift-info {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.gift-meta p {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.gift-description, .owner-info {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.gift-description h3, .owner-info h3 {
+  color: #2c5530;
+  margin-bottom: 15px;
+}
+
+.contact-btn {
+  background-color: #2c5530;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+  align-self: flex-start;
+}
+
+.contact-btn:hover {
+  background-color: #1e3a22;
+}
+
+@media (max-width: 768px) {
+  .gift-detail-content {
+    grid-template-columns: 1fr;
+  }
+}
